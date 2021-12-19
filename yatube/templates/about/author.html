@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Об авторе проекта{% endblock %}
+{% block main %}
+{% load static %}
+<h1 class="author__title">Привет, я автор проекта Yatube, меня зовут Семенов Евгений</h1>
+<div class="container row" id="container">
+    <div class="author">
+      <p>
+        Тут я размещу информацию о себе используя свои умения верстать.
+      </p>
+      <p>
+        Картинки, блоки, элементы бустрап. А может быть, просто напишу несколько абзацев текста.
+      </p>
+    </div>
+    <div class="image">
+      <img src={% static 'myself.jpg' %} alt="Евгений_Семенов">
+      <p>
+          Автор проекта
+      </p>
+    </div>
+</div>
+<div class="links">
+<a class="social" href="https://vk.com/cemuk">Моя страница Vkontakte</a>
+<a class="social" href="https://www.facebook.com/profile.php?id=100005012409209/">Моя страница Facebook</a>
+<a class="social" href="https://www.instagram.com/pro100cemuk/">Моя страница Instagram</a>
+</div>
+
+{% endblock %}

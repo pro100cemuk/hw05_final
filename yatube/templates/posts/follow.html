@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Посты избранных контент мэйкеров{% endblock %}
+{% block main %}
+  {% include 'includes/switcher.html' with follow=True %}
+  {% for post in page_obj %}
+    {% include 'posts/post.html' %}
+    {% if not forloop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}

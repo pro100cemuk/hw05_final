@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Последние обновления на сайте{% endblock %}
+{% block main %}
+  {% include 'includes/switcher.html' with index=True %}
+  {% for post in page_obj %}
+    {% include 'posts/post.html' %}
+    {% if not forloop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}
+  {{ group.title }}
+{% endblock %}
+{% block header %}
+  #{{ group.title}}
+{% endblock %}
+{% block main %}
+{% for post in page_obj %}
+  {% if forloop.first %}
+    Посты группы: #{{ group.title }}
+    <p>{{ group.description }}</p>
+  {% endif %}
+  {% include 'posts/post.html' %}
+  {% if not forloop.last %}
+    <hr>
+  {% endif %}
+{% endfor %}
+{% endblock %}

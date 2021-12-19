@@ -1,0 +1,28 @@
+{% for comment in comments %}
+<div class="card mb-3 mt-1 shadow-sm">
+  <div class="media mb-4">
+    <div class="media-body">
+      <div class="card-body">
+        <strong class="d-block text-gray-dark">
+          <p>
+            <a href="{% url 'posts:profile' comment.author.username %}">
+              {{ comment.author.get_full_name }}
+            </a>
+          </p>
+        </strong>
+        <p class="card-text">
+          <p>
+            {{ comment.text }}
+          </p>
+          <p>
+            <small class="text-muted">
+              Дата публикации: {{ comment.pub_date }}
+            </small>
+          </p>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
