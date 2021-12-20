@@ -1,7 +1,6 @@
+from core.models import CreatedModel
 from django.contrib.auth import get_user_model
 from django.db import models
-
-from core.models import CreatedModel
 
 User = get_user_model()
 
@@ -48,11 +47,11 @@ class Post(CreatedModel):
         null=True
     )
 
-    def __str__(self):
-        return self.text[:15]
-
     class Meta:
         ordering = ['-pub_date']
+
+    def __str__(self):
+        return self.text[:15]
 
 
 class Comment(CreatedModel):
@@ -74,8 +73,17 @@ class Comment(CreatedModel):
         verbose_name='Текст',
     )
 
+    class Meta:
+        ordering = ['-pub_date']
+
 
 class Follow(models.Model):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'], name='unique_following'
+            )
+        ]
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

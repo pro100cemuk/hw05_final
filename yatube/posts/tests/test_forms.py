@@ -6,7 +6,6 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-
 from posts.models import Comment, Group, Post, User
 
 HOME_URL = reverse('posts:index')
@@ -58,9 +57,6 @@ class PostsFormsTests(TestCase):
         self.post_edit = reverse('posts:post_edit', args=[self.post.id])
         self.posts_count = Post.objects.count()
         self.redirected = f'{LOGIN_URL}?next={CREATE_URL}'
-        self.add_comment = reverse('posts:add_comment', args=[self.post.id])
-        self.comment_redirect = f'{LOGIN_URL}?next={self.add_comment}'
-        self.comments_count = Comment.objects.count()
 
     def test_valid_form_create_post_in_db(self):
         uploaded = SimpleUploadedFile(
@@ -125,14 +121,35 @@ class PostsFormsTests(TestCase):
         num_posts_after = Post.objects.count()
         self.assertEqual(self.posts_count, num_posts_after)
 
+
+class CommentsFormsTests(TestCase):
+
+    def setUp(self):
+        self.guest_client = Client()
+        self.user = User.objects.create_user(username='user', password='pass')
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.user)
+        self.post = Post.objects.create(author=self.user, text=TEXT_POST)
+        self.add_comment = reverse('posts:add_comment', args=[self.post.id])
+        self.comment_redirect = f'{LOGIN_URL}?next={self.add_comment}'
+        self.comments_count = Comment.objects.count()
+        self.form_data = {'text': 'тестовый коммент'}
+
     def test_unauthorized_client_cannot_create_comment(self):
-        form_data = {
-            'text': 'тестовый коммент'
-        }
         response = self.guest_client.post(
-            self.add_comment, data=form_data, follow=True
+            self.add_comment, data=self.form_data, follow=True
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertRedirects(response, self.comment_redirect)
         num_comments_after = Comment.objects.count()
         self.assertEqual(self.comments_count, num_comments_after)
+
+    def test_authorized_client_can_create_comment(self):
+        response = self.authorized_client.post(
+            self.add_comment, data=self.form_data, follow=True
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        num_comments_after = Comment.objects.count()
+        self.assertEqual(num_comments_after, self.comments_count + 1)
+        test_comment = Comment.objects.latest('id')
+        self.assertEqual(self.form_data['text'], test_comment.text)

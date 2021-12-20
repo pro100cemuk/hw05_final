@@ -7,7 +7,6 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-
 from posts.app_settings import POSTS_PER_PAGE
 from posts.models import Comment, Follow, Group, Post, User
 
@@ -226,7 +225,7 @@ class PostsPagesTests(TestCase):
         response = self.authorized_client.get(HOME_URL)
         self.assertNotEqual(page_cached, response.content)
 
-    def test_authorized_client_can_follow_and_unfollow(self):
+    def test_authorized_client_can_follow(self):
         self.authorized_client.post(self.follow, data=None, follow=True)
         self.assertIs(
             Follow.objects.filter(
@@ -234,6 +233,9 @@ class PostsPagesTests(TestCase):
                 author=self.follower
             ).exists(),
             True)
+
+    def test_authorized_client_can_unfollow(self):
+        Follow.objects.create(user=self.user, author=self.follower)
         self.authorized_client.post(self.unfollow, data=None, follow=True)
         self.assertIs(
             Follow.objects.filter(
@@ -242,12 +244,16 @@ class PostsPagesTests(TestCase):
             ).exists(),
             False)
 
-    def test_new_post_appears_in_newsline(self):
+    def test_new_post_appears_in_sub_newsline(self):
         post = Post.objects.create(author=self.follower,
                                    text=TEXT_POST + 'follow')
         Follow.objects.create(user=self.user, author=self.follower)
         response = self.authorized_client.get(FOLLOW_INDEX_URL)
         self.assertIn(post, response.context['page_obj'].object_list)
+
+    def test_new_post_does_not_appear_in_unsub_newsline(self):
+        post = Post.objects.create(author=self.follower,
+                                   text=TEXT_POST + 'follow2')
         response = self.unsubscribed_client.get(FOLLOW_INDEX_URL)
         self.assertNotIn(post, response.context['page_obj'].object_list)
 

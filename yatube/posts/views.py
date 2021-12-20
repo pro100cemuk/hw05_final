@@ -6,7 +6,7 @@ from django.views.decorators.cache import cache_page
 
 from .app_settings import POSTS_PER_PAGE
 from .forms import CommentForm, PostForm
-from .models import Comment, Follow, Group, Post, User
+from .models import Follow, Group, Post, User
 
 
 def pagination(obj_list, request):
@@ -36,7 +36,8 @@ def profile(request, username):
     post_list = author.posts.all()
     posts_count = post_list.count()
     user = request.user
-    following = user.is_authenticated and author.following.exists()
+    following = (user.is_authenticated and Follow.objects.filter(
+        user=user, author=author).exists())
     template = 'posts/profile.html'
     context = {
         'author': author,
@@ -51,7 +52,7 @@ def profile(request, username):
 def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST or None)
-    comments = Comment.objects.filter(post_id=post_id)
+    comments = post.comments.all()
     posts_count = post.author.posts.count()
     template = 'posts/post_detail.html'
     context = {
